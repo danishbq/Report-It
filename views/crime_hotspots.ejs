@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>WebDevProject</title>
+    <style>
+        #map{
+            height: 550px;
+            width: 1200px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/bootstrap-social.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light" style="background: black">
+    <a class="navbar-brand" href="#" style="color: white">Report It</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/complaint/post" style="color: white">File Complaint<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/complaint/hotspots" style="color: white">Crime Map<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/complaint/graphs" style="color: white">Crime Data<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/user/promote" style="color: white">Promote User<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/user/logout" style="color: white">Logout<span class="sr-only">(current)</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <div style="display: flex; justify-content: center; margin-top: 50px;">
+            <div id="map"></div>
+        </div>
+
+        <script>
+            let map = null;
+            function initMap() {
+                map = new google.maps.Map(document.getElementById("map"), {
+                    center: {lat: 24.9324, lng: 67.0873},
+                    zoom: 15,
+                })
+
+                let marker = new google.maps.Marker({
+                    position: map.getCenter(),
+                    map: map,
+                    title: 'Marker'
+                });
+
+                // seeing current position of pointer
+                google.maps.event.addListener(map, 'center_changed', function() {
+                    let center = map.getCenter();
+                    marker.setPosition(center);
+
+                    document.getElementsByName('address')[0].value = center.lat() + ' ' + center.lng();
+                    console.log(document.getElementsByName('address')[0].value);
+                });
+                //
+                // console.log(map.center.lat());
+            }
+
+            // adding markers
+            fetch("http://localhost:9000/complaint/get")
+                .then(response => response.json()) // Parse the response as JSON
+                .then(data => {
+                    for (let i = 0; i < data.length; i++) {
+                        // Create a marker at the desired location
+                        const coordinates = data[i].address.split(" ");
+                        console.log(coordinates)
+                        const tempMarker = new google.maps.Marker({
+                            position: {lat: parseFloat(coordinates[0]), lng: parseFloat(coordinates[1])},
+                            map: map,
+                            title: "Red Spot",
+                            icon: {
+                                url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                                scaledSize: new google.maps.Size(32, 32),
+                            },
+                        });
+                    }
+                })
+
+        </script>
+
+
+        <script async
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2RKvsT9DaJm_HrhTTykDGInPZffEiuqg&callback=initMap">
+        </script>
+
+        </div>
+    </div>
+</body>
+</html>
